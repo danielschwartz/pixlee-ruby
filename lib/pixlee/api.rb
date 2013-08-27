@@ -23,13 +23,39 @@ module Pixlee
       handle_response self.class.get("/")
     end
 
+    def get_photos(album_id)
+      handle_response self.class.get("/albums/#{album_id}")
+
+    end
+
+    def get_tags(album_id, tag)
+      handle_response self.class.get("/albums/#{album_id}/tag/#{tag}")
+    end
+
+    def get_tagcounts(album_id)
+      handle_response self.class.get("/albums/#{album_id}/tag_counts")
+    end
+
+    #
+    # media     - requires photo_url, email_address, type (photo or video). Can also send caption and thumbnail_url
+    # signature - data object ( data : {media : {}}) hashed with your secret
+    def create_photo(album_id, media)
+
+      data = {:media=> media}
+
+      hash = Digest::SHA2.hexdigest(@api_secret.to_s + data.to_s)
+
+      handle_response self.class.post("/albums/#{album_id}/photos")
+    end
+
     private
 
     def handle_response(response)
+
       if !response.code.between?(200, 299)
         raise Pixlee::Exception.new("HTTP #{response.code} response from API")
-      elsif response.parsed_response['status'].nil? || !response.parsed_response['status'].to_i.between?(200, 299)
-        raise Pixlee::Exception.new("#{response.parsed_response['status']} - #{response.parsed_response['message']}")
+      #elsif response.parsed_response['status'].nil? || !response.parsed_response['status'].to_i.between?(200, 299)
+       # raise Pixlee::Exception.new("#{response.parsed_response['status']} - #{response.parsed_response['message']}")
       else
         response.parsed_response
       end
