@@ -25,23 +25,35 @@ module Pixlee
       handle_response self.class.get("/")
     end
 
-    def photos(album_id)
-      handle_response self.class.get("/albums/#{album_id}")
+    def photos(album_id, options = {})
+      handle_response self.class.get("/albums/#{album_id}", :query => options)
     end
 
-    def tags(album_id, tag)
-      handle_response self.class.get("/albums/#{album_id}/tag/#{tag}")
+    def photo(album_id, photo_id, options = {})
+      handle_response self.class.get("/albums/#{album_id}/photos/#{photo_id}", :query => options)
     end
 
-    def tag_counts(album_id)
-      handle_response self.class.get("/albums/#{album_id}/tag_counts")
+    def tags(album_id, tag, options = {})
+      handle_response self.class.get("/albums/#{album_id}/tag/#{tag}", :query => options)
     end
 
-    def create_photo(album_id, media)
+    def tag_counts(album_id, options = {})
+      handle_response self.class.get("/albums/#{album_id}/tag_counts", :query => options)
+    end
+
+    def create_photo(album_id, media, options = {})
+      media   = {:media => media}.merge(options)
       payload = signed_data(media).to_json
+
+      puts payload
 
       handle_response self.class.post("/albums/#{album_id}/photos", :body => payload, :headers => { 'Content-Type' => 'application/json' })
     end
+
+    # Legacy support
+    alias_method :get_albums, :albums
+    alias_method :get_album_contents, :photos 
+    alias_method :get_album_photo, :photo
 
     private
     def signed_data(data)
