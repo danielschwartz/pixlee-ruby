@@ -6,8 +6,8 @@ require 'pixlee/version'
 Gem::Specification.new do |spec|
   spec.name          = "pixlee"
   spec.version       = Pixlee::VERSION
-  spec.authors       = ["Daniel Schwartz"]
-  spec.email         = ["dschwartz88@gmail.com"]
+  spec.authors       = ["Daniel Schwartz", "Josh McMillan", "Joe Tuson"]
+  spec.email         = ["dschwartz88@gmail.com", "josh@joshmcmillan.co.uk", "joetuson@gmail.com"]
   spec.description   = ["A simple wrapper for accessing the Pixlee API"]
   spec.summary       = ["A simple wrapper for accessing the Pixlee API"]
   spec.homepage      = "http://github.com/danielschwartz/pixlee-ruby"
