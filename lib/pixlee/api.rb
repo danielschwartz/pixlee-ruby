@@ -45,8 +45,6 @@ module Pixlee
       media   = {:media => media}.merge(options)
       payload = signed_data(media).to_json
 
-      puts payload
-
       handle_response self.class.post("/albums/#{album_id}/photos", :body => payload, :headers => { 'Content-Type' => 'application/json' })
     end
 
