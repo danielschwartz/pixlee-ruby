@@ -1,5 +1,6 @@
 require "httparty"
 require "json"
+require "openssl"
 
 module Pixlee
   class API
@@ -47,7 +48,7 @@ module Pixlee
       {
         :data      => data,
         :api_key   => @api_key,
-        :signature => Digest::SHA2.hexdigest("#{@api_secret}#{data.to_json}")
+        :signature => OpenSSL::HMAC.hexdigest('sha256', data.to_json, @api_secret)
       }
     end
 
