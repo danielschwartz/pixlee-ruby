@@ -1,4 +1,5 @@
 require "httparty"
+require "json"
 
 module Pixlee
   class API
@@ -19,43 +20,42 @@ module Pixlee
       self.class.default_params[:api_key] = @api_key
     end
 
-    def get_albums
+    def albums
       handle_response self.class.get("/")
     end
 
-    def get_photos(album_id)
+    def photos(album_id)
       handle_response self.class.get("/albums/#{album_id}")
-
     end
 
-    def get_tags(album_id, tag)
+    def tags(album_id, tag)
       handle_response self.class.get("/albums/#{album_id}/tag/#{tag}")
     end
 
-    def get_tagcounts(album_id)
+    def tag_counts(album_id)
       handle_response self.class.get("/albums/#{album_id}/tag_counts")
     end
 
-    #
-    # media     - requires photo_url, email_address, type (photo or video). Can also send caption and thumbnail_url
-    # signature - data object ( data : {media : {}}) hashed with your secret
     def create_photo(album_id, media)
+      payload = signed_data(media).to_json
 
-      data = {:media=> media}
-
-      hash = Digest::SHA2.hexdigest(@api_secret.to_s + data.to_s)
-
-      handle_response self.class.post("/albums/#{album_id}/photos")
+      handle_response self.class.post("/albums/#{album_id}/photos", :body => payload, :headers => { 'Content-Type' => 'application/json' })
     end
 
     private
+    def signed_data(data)
+      {
+        :data      => data,
+        :api_key   => @api_key,
+        :signature => Digest::SHA2.hexdigest("#{@api_secret}#{data.to_json}")
+      }
+    end
 
     def handle_response(response)
-
       if !response.code.between?(200, 299)
         raise Pixlee::Exception.new("HTTP #{response.code} response from API")
-      #elsif response.parsed_response['status'].nil? || !response.parsed_response['status'].to_i.between?(200, 299)
-       # raise Pixlee::Exception.new("#{response.parsed_response['status']} - #{response.parsed_response['message']}")
+      elsif response.parsed_response['status'].nil? || !response.parsed_response['status'].to_i.between?(200, 299)
+        raise Pixlee::Exception.new("#{response.parsed_response['status']} - #{response.parsed_response['message']}")
       else
         response.parsed_response
       end
