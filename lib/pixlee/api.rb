@@ -1,6 +1,7 @@
 require "httparty"
 require "json"
 require "openssl"
+require "ostruct"
 
 module Pixlee
   class API
@@ -63,12 +64,19 @@ module Pixlee
     end
 
     def handle_response(response)
+      parsed = response.parsed_response
+      if parsed.is_a?(Hash)
+        parsed = OpenStruct.new(parsed)
+      end
+
       if !response.code.between?(200, 299)
         raise Pixlee::Exception.new("HTTP #{response.code} response from API")
-      elsif response.parsed_response['status'].nil? || !response.parsed_response['status'].to_i.between?(200, 299)
-        raise Pixlee::Exception.new("#{response.parsed_response['status']} - #{response.parsed_response['message']}")
+      elsif defined?(parsed.status).nil? 
+        raise Pixlee::Exception.new("No status returned by API")
+      elsif !parsed.status.to_i.between?(200, 299)
+        raise Pixlee::Exception.new("#{parsed.status} - #{parsed.message}")
       else
-        response.parsed_response
+        parsed
       end
     end
   end
