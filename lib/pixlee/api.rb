@@ -34,7 +34,7 @@ module Pixlee
     end
 
     def tags(album_id, tag, options = {})
-      handle_response self.class.get("/albums/#{album_id}/tag/#{tag}", :query => options)
+      handle_response self.class.get("/albums/#{album_id}/tags/#{tag}", :query => options)
     end
 
     def tag_counts(album_id, options = {})
